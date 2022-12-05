@@ -1,5 +1,5 @@
 {
-  "name": "com.atteneder.gltfast",
+  "name": "com.decentraland.gltfast",
   "version": "5.0.0-exp.1",
   "displayName": "DCL - glTFast",
   "description": "Decentraland's override of the original glTFast implementation to support some small features that we need",
