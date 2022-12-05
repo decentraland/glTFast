@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GLTFast.Logging;
+using GLTFast.Materials;
 using GLTFast.Utils;
 using UnityEditor;
 #if UNITY_2020_2_OR_NEWER
@@ -52,16 +53,16 @@ namespace GLTFast.Editor {
 #else
     [ScriptedImporter(1, null, overrideExts: new[] { "gltf","glb" })]
 #endif
-    class GltfImporter : ScriptedImporter {
+    public class GltfImporter : ScriptedImporter {
 
         [SerializeField]
         EditorImportSettings editorImportSettings;
         
         [SerializeField]
-        ImportSettings importSettings;
+        public ImportSettings importSettings;
         
         [SerializeField]
-        InstantiationSettings instantiationSettings;
+        public InstantiationSettings instantiationSettings;
         
         [SerializeField]
         GltfAssetDependency[] assetDependencies;
@@ -69,11 +70,15 @@ namespace GLTFast.Editor {
         [SerializeField]
         LogItem[] reportItems;
         
-        GltfImport m_Gltf;
+        protected GltfImport m_Gltf;
 
         HashSet<string> m_ImportedNames;
         HashSet<Object> m_ImportedObjects;
         
+        // static fields ensure that they dont get deleted after saving the importer
+        private static Func<Uri,Uri> dependencyMapping;
+        private static IMaterialGenerator customMaterialGenerator;
+
         // static string[] GatherDependenciesFromSourceFile(string path) {
         //     // Called before actual import for each changed asset that is imported by this importer type
         //     // Extract the dependencies for the asset specified in path.
@@ -82,20 +87,34 @@ namespace GLTFast.Editor {
         //     // TODO: Texture files with relative URIs should be included here
         //     return null;
         // }
+
+        public void SetupExternalDependencies(Func<Uri, Uri> urlConversion)
+        {
+            dependencyMapping = urlConversion;
+        }
+
+        public void SetupCustomMaterialGenerator(IMaterialGenerator materialGenerator)
+        {
+            customMaterialGenerator = materialGenerator;
+        }
         
         public override void OnImportAsset(AssetImportContext ctx) {
 
             reportItems = null;
 
-            var downloadProvider = new EditorDownloadProvider();
+            var downloadProvider = new EditorDownloadProvider(dependencyMapping);
             var logger = new CollectingLogger();
             
             m_Gltf = new GltfImport(
                 downloadProvider,
                 new UninterruptedDeferAgent(),
-                null,
+                customMaterialGenerator,
                 logger
                 );
+            
+            // we clean the overrides to avoid future imports with incorrect data
+            dependencyMapping = null;
+            customMaterialGenerator = null;
 
             var gltfIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.atteneder.gltfast/Editor/UI/gltf-icon-bug.png");
             
@@ -180,36 +199,10 @@ namespace GLTFast.Editor {
                     }
                 }
                 
-                for (var i = 0; i < m_Gltf.textureCount; i++) {
-                    var texture = m_Gltf.GetTexture(i);
-                    if (texture != null) {
-                        var textureAssetPath = AssetDatabase.GetAssetPath(texture);
-                        if (string.IsNullOrEmpty(textureAssetPath)) {
-                            AddObjectToAsset(ctx, $"textures/{texture.name}", texture);
-                        }
-                    }
-                }
+                CreateTextureAssets(ctx);
                 
-                for (var i = 0; i < m_Gltf.materialCount; i++) {
-                    var mat = m_Gltf.GetMaterial(i);
-                    
-                    // Overriding double-sided for GI baking
-                    // Resolves problems with meshes that are not a closed
-                    // volume at a potential minor cost of baking speed. 
-                    mat.doubleSidedGI = true;
-                    
-                    if (mat != null) {
-                        AddObjectToAsset(ctx, $"materials/{mat.name}", mat);
-                    }
-                }
+                CreateMaterialAssets(ctx);
 
-                if (m_Gltf.defaultMaterial != null) {
-                    // If a default/fallback material was created, import it as well'
-                    // to avoid (pink) objects without materials
-                    var mat = m_Gltf.defaultMaterial;
-                    AddObjectToAsset(ctx, $"materials/{mat.name}", mat);
-                }
-                
                 var meshes = m_Gltf.GetMeshes();
                 if (meshes != null) {
                     foreach (var mesh in meshes) {
@@ -293,6 +286,50 @@ namespace GLTFast.Editor {
                 Debug.LogError($"Failed to import {assetPath} (see inspector for details)", this);
             }
             reportItems = reportItemList.ToArray();
+        }
+
+        protected virtual void CreateMaterialAssets(AssetImportContext ctx)
+        {
+            for (var i = 0; i < m_Gltf.materialCount; i++)
+            {
+                var mat = m_Gltf.GetMaterial(i);
+
+                // Overriding double-sided for GI baking
+                // Resolves problems with meshes that are not a closed
+                // volume at a potential minor cost of baking speed. 
+                mat.doubleSidedGI = true;
+
+                if (mat != null)
+                {
+                    AddObjectToAsset(ctx, $"materials/{mat.name}", mat);
+                }
+            }
+
+            if (m_Gltf.defaultMaterial != null)
+            {
+                // If a default/fallback material was created, import it as well'
+                // to avoid (pink) objects without materials
+                var mat = m_Gltf.defaultMaterial;
+                AddObjectToAsset(ctx, $"materials/{mat.name}", mat);
+            }
+        }
+
+        protected virtual void CreateTextureAssets(AssetImportContext ctx)
+        {
+            for (var i = 0; i < m_Gltf.textureCount; i++)
+            {
+                var texture = m_Gltf.GetTexture(i);
+
+                if (texture != null)
+                {
+                    var textureAssetPath = AssetDatabase.GetAssetPath(texture);
+
+                    if (string.IsNullOrEmpty(textureAssetPath))
+                    {
+                        AddObjectToAsset(ctx, $"textures/{texture.name}", texture);
+                    }
+                }
+            }
         }
 
         void AddObjectToAsset(AssetImportContext ctx, string originalName, Object obj, Texture2D thumbnail = null) {
