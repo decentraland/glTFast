@@ -33,6 +33,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GLTFast.Loading;
 using GLTFast.Logging;
 using GLTFast.Materials;
 using GLTFast.Utils;
@@ -76,8 +77,8 @@ namespace GLTFast.Editor {
         HashSet<Object> m_ImportedObjects;
         
         // static fields ensure that they dont get deleted after saving the importer
-        private static Func<Uri,Uri> dependencyMapping;
         private static IMaterialGenerator customMaterialGenerator;
+        private static IEditorDownloadProvider customDownloadProvider;
 
         // static string[] GatherDependenciesFromSourceFile(string path) {
         //     // Called before actual import for each changed asset that is imported by this importer type
@@ -87,22 +88,22 @@ namespace GLTFast.Editor {
         //     // TODO: Texture files with relative URIs should be included here
         //     return null;
         // }
-
-        public void SetupExternalDependencies(Func<Uri, Uri> urlConversion)
-        {
-            dependencyMapping = urlConversion;
-        }
-
+        
         public void SetupCustomMaterialGenerator(IMaterialGenerator materialGenerator)
         {
             customMaterialGenerator = materialGenerator;
+        }
+
+        public void SetupCustomGltfDownloadProvider(IEditorDownloadProvider downloadProvider)
+        {
+            customDownloadProvider = downloadProvider;
         }
         
         public override void OnImportAsset(AssetImportContext ctx) {
 
             reportItems = null;
 
-            var downloadProvider = new EditorDownloadProvider(dependencyMapping);
+            var downloadProvider = customDownloadProvider ?? new EditorDownloadProvider();
             var logger = new CollectingLogger();
             
             m_Gltf = new GltfImport(
@@ -113,7 +114,7 @@ namespace GLTFast.Editor {
                 );
             
             // we clean the overrides to avoid future imports with incorrect data
-            dependencyMapping = null;
+            customDownloadProvider = null;
             customMaterialGenerator = null;
 
             var gltfIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.atteneder.gltfast/Editor/UI/gltf-icon-bug.png");

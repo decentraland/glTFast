@@ -24,22 +24,20 @@ namespace GLTFast.Editor {
     
     using Loading;
 
-    class EditorDownloadProvider : IDownloadProvider {
+    class EditorDownloadProvider : IEditorDownloadProvider
+    {
 
-        public List<GltfAssetDependency> assetDependencies = new List<GltfAssetDependency>();
-        private Func<Uri, Uri> urlConversion;
-
-        public EditorDownloadProvider(Func<Uri, Uri> urlConversion)
+        public List<GltfAssetDependency> assetDependencies
         {
-            this.urlConversion = urlConversion;
+            get => innerAssetDependencies;
+            set => innerAssetDependencies = value;
         }
+
+        public List<GltfAssetDependency> innerAssetDependencies = new List<GltfAssetDependency>();
+
 
 #pragma warning disable 1998
         public async  Task<IDownload> Request(Uri url) {
-            if (urlConversion != null)
-            {
-                url = urlConversion(url);
-            }
             var dependency = new GltfAssetDependency {
                 originalUri = url.OriginalString
             };
@@ -49,10 +47,6 @@ namespace GLTFast.Editor {
         }
 
         public async Task<ITextureDownload> RequestTexture(Uri url,bool nonReadable) {
-            if (urlConversion != null)
-            {
-                url = urlConversion(url);
-            }
             var dependency = new GltfAssetDependency {
                 originalUri = url.OriginalString,
                 type = GltfAssetDependency.Type.Texture
@@ -67,6 +61,7 @@ namespace GLTFast.Editor {
             var projectPath = new Uri(Path.GetDirectoryName(Application.dataPath));
             return uri.MakeRelativeUri(projectPath);
         }
+
     }
 
     class SyncFileLoader : IDownload {
