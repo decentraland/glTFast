@@ -44,12 +44,12 @@ namespace GLTFast.Editor {
 
 #pragma warning disable 1998
         public async  Task<IDownload> Request(Uri url) {
-            var req = new SyncFileLoader(GetDependencyFromPreviousImport(url));
+            var req = new SyncFileLoader(GetDependencyFromPreviousImport(url, GltfAssetDependency.Type.Buffer));
             return req;
         }
 
         public async Task<ITextureDownload> RequestTexture(Uri url,bool nonReadable) {
-            var req = new SyncTextureLoader(GetDependencyFromPreviousImport(url),nonReadable);
+            var req = new SyncTextureLoader(GetDependencyFromPreviousImport(url, GltfAssetDependency.Type.Texture),nonReadable);
             return req;
         }
 
@@ -60,7 +60,7 @@ namespace GLTFast.Editor {
             return uri.MakeRelativeUri(projectPath);
         }
 
-        private Uri GetDependencyFromPreviousImport(Uri url)
+        private Uri GetDependencyFromPreviousImport(Uri url, GltfAssetDependency.Type type)
         {
             var previousDependency = previousDependencies.FirstOrDefault(d => d.originalUri == url.OriginalString);
 
@@ -69,12 +69,13 @@ namespace GLTFast.Editor {
                 var newDependency = new GltfAssetDependency
                 {
                     originalUri = url.OriginalString,
-                    type = GltfAssetDependency.Type.Buffer,
+                    type = type,
                 };
-                assetDependencies.Add(newDependency);
+                innerAssetDependencies.Add(newDependency);
                 return new Uri(newDependency.originalUri, UriKind.Relative);
             }
             
+            innerAssetDependencies.Add(previousDependency);
             return new Uri(previousDependency.assetPath, UriKind.Relative);
         }
     }
