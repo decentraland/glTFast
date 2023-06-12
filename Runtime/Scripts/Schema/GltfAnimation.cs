@@ -16,6 +16,7 @@
 #if UNITY_ANIMATION
 
 using System;
+using System.Collections.Generic;
 
 namespace GLTFast.Schema {
     [Serializable]

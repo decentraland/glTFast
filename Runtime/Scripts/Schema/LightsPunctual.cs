@@ -16,6 +16,7 @@
 using System;
 using Unity.Mathematics;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace GLTFast.Schema
 {

@@ -20,6 +20,7 @@ using UnityEngine.Assertions;
 
 // GLTF_EXPORT
 using UnityEngine.Rendering;
+using System.Collections.Generic;
 
 namespace GLTFast.Schema
 {
