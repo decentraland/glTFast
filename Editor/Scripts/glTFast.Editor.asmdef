@@ -6,7 +6,8 @@
         "glTFast.Export",
         "UnityEngine.TestTools.Graphics",
         "Unity.RenderPipelines.HighDefinition.Runtime",
-        "com.unity.formats.gltf.validator.Editor"
+        "com.unity.formats.gltf.validator.Editor",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [
         "Editor"

@@ -14,13 +14,14 @@
 //
 
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace GLTFast.Loading
 {
 
     /// <summary>
-    /// Used for wrapping <see cref="Task{IDownload}"/>
+    /// Used for wrapping <see cref="UniTask{IDownload}"/>
     /// </summary>
     abstract class TextureDownloadBase
     {
@@ -31,24 +32,24 @@ namespace GLTFast.Loading
         /// <see cref="Download"/>.
         /// </summary>
         /// <returns></returns>
-        public abstract Task Load();
+        public abstract UniTask Load();
     }
 
     /// <summary>
-    /// Used for wrapping <see cref="Task{IDownload}"/>
+    /// Used for wrapping <see cref="UniTask{IDownload}"/>
     /// </summary>
     class TextureDownload<T> : TextureDownloadBase where T : IDownload
     {
-        Task<T> m_Task;
+        UniTask<T> m_UniTask;
 
-        public TextureDownload(Task<T> task)
+        public TextureDownload(UniTask<T> UniTask)
         {
-            m_Task = task;
+            m_UniTask = UniTask;
         }
 
-        public override async Task Load()
+        public override async UniTask Load()
         {
-            Download = await m_Task;
+            Download = await m_UniTask;
         }
     }
 }

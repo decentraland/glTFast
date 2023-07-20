@@ -24,7 +24,8 @@
     "com.unity.modules.jsonserialize": "1.0.0",
     "com.unity.modules.unitywebrequest": "1.0.0",
     "com.unity.mathematics": "1.2.6",
-    "com.unity.burst": "1.6.6"
+    "com.unity.burst": "1.6.6",
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
   },
   "type": "library",
   "unityRelease": "14f1"

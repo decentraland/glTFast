@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace GLTFast.Utils
@@ -11,10 +12,10 @@ namespace GLTFast.Utils
     static class AsyncHelpers
     {
         /// <summary>
-        /// Executes an async Task&lt;T&gt; method which has a void return value synchronously
+        /// Executes an async UniTask&lt;T&gt; method which has a void return value synchronously
         /// </summary>
-        /// <param name="task">Task&lt;T&gt; method to execute</param>
-        public static void RunSync(Func<Task> task)
+        /// <param name="UniTask">UniTask&lt;T&gt; method to execute</param>
+        public static void RunSync(Func<UniTask> UniTask)
         {
             var oldContext = SynchronizationContext.Current;
             var sync = new ExclusiveSynchronizationContext();
@@ -24,7 +25,7 @@ namespace GLTFast.Utils
             {
                 try
                 {
-                    await task();
+                    await UniTask();
                 }
                 catch (Exception e)
                 {
@@ -42,12 +43,12 @@ namespace GLTFast.Utils
         }
 
         /// <summary>
-        /// Executes an async Task&lt;T&gt; method which has a T return type synchronously
+        /// Executes an async UniTask&lt;T&gt; method which has a T return type synchronously
         /// </summary>
         /// <typeparam name="T">Return Type</typeparam>
-        /// <param name="task">Task&lt;T&gt; method to execute</param>
+        /// <param name="UniTask">UniTask&lt;T&gt; method to execute</param>
         /// <returns></returns>
-        public static T RunSync<T>(Func<Task<T>> task)
+        public static T RunSync<T>(Func<UniTask<T>> UniTask)
         {
             var oldContext = SynchronizationContext.Current;
             var sync = new ExclusiveSynchronizationContext();
@@ -58,7 +59,7 @@ namespace GLTFast.Utils
             {
                 try
                 {
-                    ret = await task();
+                    ret = await UniTask();
                 }
                 catch (Exception e)
                 {
@@ -106,17 +107,17 @@ namespace GLTFast.Utils
             {
                 while (!m_Done)
                 {
-                    Tuple<SendOrPostCallback, object> task = null;
+                    Tuple<SendOrPostCallback, object> UniTask = null;
                     lock (m_Items)
                     {
                         if (m_Items.Count > 0)
                         {
-                            task = m_Items.Dequeue();
+                            UniTask = m_Items.Dequeue();
                         }
                     }
-                    if (task != null)
+                    if (UniTask != null)
                     {
-                        task.Item1(task.Item2);
+                        UniTask.Item1(UniTask.Item2);
                         if (InnerException != null) // the method threw an exception
                         {
                             throw new AggregateException("AsyncHelpers.Run method threw an exception.", InnerException);

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -44,12 +45,12 @@ namespace GLTFast.Editor
         }
 
 #pragma warning disable 1998
-        public async  Task<IDownload> Request(Uri url) {
+        public async  UniTask<IDownload> Request(Uri url) {
             var req = new SyncFileLoader(GetDependencyFromPreviousImport(url, GltfAssetDependency.Type.Buffer));
             return req;
         }
 
-        public async Task<ITextureDownload> RequestTexture(Uri url,bool nonReadable,bool forceLinear) {
+        public async UniTask<ITextureDownload> RequestTexture(Uri url,bool nonReadable,bool forceLinear) {
             var req = new SyncTextureLoader(GetDependencyFromPreviousImport(url, GltfAssetDependency.Type.Texture));
             return req;
         }

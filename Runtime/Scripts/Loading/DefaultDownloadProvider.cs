@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 using UnityEngine;
 using UnityEngine.Networking;
@@ -33,7 +34,7 @@ namespace GLTFast.Loading
         /// </summary>
         /// <param name="url">URI to request</param>
         /// <returns>Object representing the request</returns>
-        public async Task<IDownload> Request(Uri url)
+        public async UniTask<IDownload> Request(Uri url)
         {
             var req = new AwaitableDownload(url);
             await req.WaitAsync();
@@ -47,7 +48,7 @@ namespace GLTFast.Loading
         /// <param name="nonReadable">If true, resulting texture is not CPU readable (uses less memory)</param>
         /// <returns>Object representing the request</returns>
 #pragma warning disable CS1998
-        public async Task<ITextureDownload> RequestTexture(Uri url, bool nonReadable, bool forceLinear)
+        public async UniTask<ITextureDownload> RequestTexture(Uri url, bool nonReadable, bool forceLinear)
         {
 #pragma warning restore CS1998
 #if UNITY_WEBREQUEST_TEXTURE
@@ -101,12 +102,12 @@ namespace GLTFast.Loading
         /// <summary>
         /// Waits until the URI request is completed.
         /// </summary>
-        /// <returns>A task that represents the completion of the download</returns>
-        public async Task WaitAsync()
+        /// <returns>A UniTask that represents the completion of the download</returns>
+        public async UniTask WaitAsync()
         {
             while (!m_AsyncOperation.isDone)
             {
-                await Task.Yield();
+                await UniTask.Yield();
             }
         }
 

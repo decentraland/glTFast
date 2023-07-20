@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace GLTFast.Export
@@ -99,7 +100,7 @@ namespace GLTFast.Export
         /// <param name="path">glTF destination file path</param>
         /// <param name="cancellationToken">Token to submit cancellation requests. The default value is None.</param>
         /// <returns>True if the glTF file was created successfully, false otherwise</returns>
-        public async Task<bool> SaveToFileAndDispose(
+        public async UniTask<bool> SaveToFileAndDispose(
             string path,
             CancellationToken cancellationToken = default
             )
@@ -118,7 +119,7 @@ namespace GLTFast.Export
         /// <param name="stream">glTF destination stream</param>
         /// <param name="cancellationToken">Token to submit cancellation requests. The default value is None.</param>
         /// <returns>True if the glTF file was written successfully, false otherwise</returns>
-        public async Task<bool> SaveToStreamAndDispose(
+        public async UniTask<bool> SaveToStreamAndDispose(
             Stream stream,
             CancellationToken cancellationToken = default
             )
