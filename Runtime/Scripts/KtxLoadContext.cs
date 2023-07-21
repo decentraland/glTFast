@@ -20,6 +20,7 @@
 #if KTX
 
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using KtxUnity;
 
 namespace GLTFast {
@@ -32,7 +33,7 @@ namespace GLTFast {
             m_KtxTexture = new KtxTexture();
         }
 
-        public override async Task<TextureResult> LoadTexture2D(bool linear) {
+        public override async UniTask<TextureResult> LoadTexture2D(bool linear) {
             using (var array = new ManagedNativeArray(m_Data)) {
 
                 var errorCode = m_KtxTexture.Open(array.nativeArray);

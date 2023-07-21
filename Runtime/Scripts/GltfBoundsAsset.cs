@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using GLTFast.Loading;
 using UnityEngine;
 
@@ -50,7 +51,7 @@ namespace GLTFast
         bool createBoxCollider = true;
 
         /// <inheritdoc />
-        public override async Task<bool> Load(
+        public override async UniTask<bool> Load(
             string gltfUrl,
             IDownloadProvider downloadProvider = null,
             IDeferAgent deferAgent = null,
@@ -86,7 +87,7 @@ namespace GLTFast
         }
 
         /// <inheritdoc />
-        public override async Task<bool> InstantiateScene(int sceneIndex, ICodeLogger logger = null)
+        public override async UniTask<bool> InstantiateScene(int sceneIndex, ICodeLogger logger = null)
         {
             var instantiator = (GameObjectBoundsInstantiator)GetDefaultInstantiator(logger);
             var success = await base.InstantiateScene(sceneIndex, instantiator);

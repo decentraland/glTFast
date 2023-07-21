@@ -14,6 +14,7 @@
 //
 
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace GLTFast
@@ -64,8 +65,8 @@ namespace GLTFast
         /// loading procedure in order to keep the frame rate responsive.</param>
         /// <param name="materialGenerator">Used to convert glTF materials to <see cref="Material"/> instances</param>
         /// <param name="logger">Used for message reporting</param>
-        /// <returns>Async Task that loads the glTF's contents</returns>
-        public virtual async Task<bool> Load(
+        /// <returns>Async UniTask that loads the glTF's contents</returns>
+        public virtual async UniTask<bool> Load(
             string gltfUrl,
             IDownloadProvider downloadProvider = null,
             IDeferAgent deferAgent = null,
@@ -83,7 +84,7 @@ namespace GLTFast
         /// <param name="logger">Used for message reporting</param>
         /// <returns>True if instantiation was successful.</returns>
         // ReSharper disable once MemberCanBeProtected.Global
-        public async Task<bool> Instantiate(ICodeLogger logger = null)
+        public async UniTask<bool> Instantiate(ICodeLogger logger = null)
         {
             if (Importer == null) return false;
             var instantiator = GetDefaultInstantiator(logger);
@@ -98,7 +99,7 @@ namespace GLTFast
         /// <param name="sceneIndex">Index of the scene to be instantiated</param>
         /// <param name="logger">Used for message reporting</param>
         /// <returns>True if instantiation was successful.</returns>
-        public virtual async Task<bool> InstantiateScene(int sceneIndex, ICodeLogger logger = null)
+        public virtual async UniTask<bool> InstantiateScene(int sceneIndex, ICodeLogger logger = null)
         {
             if (Importer == null) return false;
             var instantiator = GetDefaultInstantiator(logger);
@@ -113,7 +114,7 @@ namespace GLTFast
         /// <param name="sceneIndex">Index of the scene to be instantiated</param>
         /// <param name="instantiator">Receives scene construction calls</param>
         /// <returns>True if instantiation was successful.</returns>
-        protected async Task<bool> InstantiateScene(int sceneIndex, GameObjectInstantiator instantiator)
+        protected async UniTask<bool> InstantiateScene(int sceneIndex, GameObjectInstantiator instantiator)
         {
             if (Importer == null) return false;
             var success = await Importer.InstantiateSceneAsync(instantiator, sceneIndex);

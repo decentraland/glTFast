@@ -20,6 +20,7 @@
 #if KTX
 
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using KtxUnity;
 using UnityEngine;
 
@@ -28,7 +29,7 @@ namespace GLTFast {
         public int imageIndex;
         protected KtxTexture m_KtxTexture;
 
-        public abstract Task<TextureResult> LoadTexture2D(bool linear);
+        public abstract UniTask<TextureResult> LoadTexture2D(bool linear);
     }
 }
 #endif // KTX_UNITY

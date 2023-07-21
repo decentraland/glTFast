@@ -14,6 +14,7 @@
 //
 
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace GLTFast
 {
@@ -38,9 +39,9 @@ namespace GLTFast
 
 #pragma warning disable 1998
         /// <inheritdoc />
-        public async Task BreakPoint() { }
+        public async UniTask BreakPoint() { }
         /// <inheritdoc />
-        public async Task BreakPoint(float duration) { }
+        public async UniTask BreakPoint(float duration) { }
 #pragma warning restore 1998
     }
 }

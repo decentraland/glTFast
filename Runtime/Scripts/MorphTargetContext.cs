@@ -22,6 +22,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using Mesh = UnityEngine.Mesh;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using GLTFast.Logging;
 
 namespace GLTFast
@@ -80,7 +81,7 @@ namespace GLTFast
             return handle;
         }
 
-        public async Task ApplyOnMeshAndDispose(Mesh mesh)
+        public async UniTask ApplyOnMeshAndDispose(Mesh mesh)
         {
             for (var index = 0; index < m_Contexts.Length; index++)
             {

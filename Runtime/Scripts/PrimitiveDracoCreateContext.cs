@@ -17,6 +17,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Unity.Collections;
 using Draco;
@@ -27,13 +28,13 @@ namespace GLTFast {
     class PrimitiveDracoCreateContext : PrimitiveCreateContextBase {
 
         DracoMeshLoader m_Draco;
-        Task<Mesh> m_DracoTask;
+        UniTask<Mesh>? m_DracoUniTask;
         Bounds? m_Bounds;
 
         bool m_NeedsNormals;
         bool m_NeedsTangents;
 
-        public override bool IsCompleted => m_DracoTask!=null && m_DracoTask.IsCompleted;
+        public override bool IsCompleted => m_DracoUniTask.HasValue && m_DracoUniTask.Value.Status != UniTaskStatus.Pending;
 
         public PrimitiveDracoCreateContext(
             int primitiveIndex,
@@ -52,24 +53,24 @@ namespace GLTFast {
 
         public void StartDecode(NativeSlice<byte> data, int weightsAttributeId, int jointsAttributeId) {
             m_Draco = new DracoMeshLoader();
-            m_DracoTask = m_Draco.ConvertDracoMeshToUnity(
+            m_DracoUniTask = m_Draco.ConvertDracoMeshToUnity(
                 data,
                 m_NeedsNormals,
                 m_NeedsTangents,
                 weightsAttributeId,
                 jointsAttributeId,
                 morphTargetsContext!=null
-                );
+                ).AsUniTask();
         }
 
-        public override async Task<Primitive?> CreatePrimitive() {
+        public override async UniTask<Primitive?> CreatePrimitive()
+        {
+            if (!m_DracoUniTask.HasValue) return null;
+            
+            var mesh = await m_DracoUniTask.Value;
+            m_DracoUniTask.Value.Forget();
 
-            var mesh = m_DracoTask.Result;
-            m_DracoTask.Dispose();
-
-            if (mesh == null) {
-                return null;
-            }
+            if (mesh == null) return null;
 
             mesh.name = m_MeshName;
 

@@ -15,6 +15,7 @@
 
 using System.IO;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace GLTFast
@@ -122,7 +123,7 @@ namespace GLTFast
         }
 
         /// <inheritdoc />
-        public override async Task<bool> Load(
+        public override async UniTask<bool> Load(
             string gltfUrl,
             IDownloadProvider downloadProvider = null,
             IDeferAgent deferAgent = null,

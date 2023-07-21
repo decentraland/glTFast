@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace GLTFast
@@ -88,20 +89,20 @@ namespace GLTFast
         }
 
         /// <inheritdoc />
-        public async Task BreakPoint()
+        public async UniTask BreakPoint()
         {
             if (ShouldDefer())
             {
-                await Task.Yield();
+                await UniTask.Yield();
             }
         }
 
         /// <inheritdoc />
-        public async Task BreakPoint(float duration)
+        public async UniTask BreakPoint(float duration)
         {
             if (ShouldDefer(duration))
             {
-                await Task.Yield();
+                await UniTask.Yield();
             }
         }
     }

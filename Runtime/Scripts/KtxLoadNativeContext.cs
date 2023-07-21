@@ -20,6 +20,7 @@
 #if KTX
 
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using KtxUnity;
 using Unity.Collections;
 
@@ -33,7 +34,7 @@ namespace GLTFast {
             m_KtxTexture = new KtxTexture();
         }
 
-        public override async Task<TextureResult> LoadTexture2D(bool linear) {
+        public override async UniTask<TextureResult> LoadTexture2D(bool linear) {
             var errorCode = m_KtxTexture.Open(m_Slice);
             if (errorCode != ErrorCode.Success) {
                 return new TextureResult(errorCode);

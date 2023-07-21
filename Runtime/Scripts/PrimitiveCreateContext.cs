@@ -15,7 +15,7 @@
 
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-
+using Cysharp.Threading.Tasks;
 using Unity.Jobs;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
@@ -49,7 +49,7 @@ namespace GLTFast
 
         public override bool IsCompleted => jobHandle.IsCompleted;
 
-        public override async Task<Primitive?> CreatePrimitive()
+        public override async UniTask<Primitive?> CreatePrimitive()
         {
             Profiler.BeginSample("CreatePrimitive");
             jobHandle.Complete();

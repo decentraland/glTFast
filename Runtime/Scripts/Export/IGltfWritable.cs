@@ -15,6 +15,7 @@
 
 using System.IO;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -140,7 +141,7 @@ namespace GLTFast.Export
         /// </summary>
         /// <param name="path">glTF destination file path</param>
         /// <returns>True if the glTF file was created successfully, false otherwise</returns>
-        Task<bool> SaveToFileAndDispose(string path);
+        UniTask<bool> SaveToFileAndDispose(string path);
 
         /// <summary>
         /// Exports the collected scenes/content as glTF, writes it to a Stream
@@ -149,6 +150,6 @@ namespace GLTFast.Export
         /// </summary>
         /// <param name="stream">glTF destination stream</param>
         /// <returns>True if the glTF file was created successfully, false otherwise</returns>
-        Task<bool> SaveToStreamAndDispose(Stream stream);
+        UniTask<bool> SaveToStreamAndDispose(Stream stream);
     }
 }

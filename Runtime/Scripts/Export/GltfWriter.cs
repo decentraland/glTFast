@@ -24,6 +24,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 using GLTFast.Schema;
 using Unity.Collections;
@@ -535,7 +536,7 @@ namespace GLTFast.Export
         }
 
         /// <inheritdoc />
-        public async Task<bool> SaveToFileAndDispose(string path)
+        public async UniTask<bool> SaveToFileAndDispose(string path)
         {
 
             CertifyNotDisposed();
@@ -562,7 +563,7 @@ namespace GLTFast.Export
         }
 
         /// <inheritdoc />
-        public async Task<bool> SaveToStreamAndDispose(Stream stream)
+        public async UniTask<bool> SaveToStreamAndDispose(Stream stream)
         {
 
             CertifyNotDisposed();
@@ -576,7 +577,7 @@ namespace GLTFast.Export
             return await SaveAndDispose(stream);
         }
 
-        async Task<bool> SaveAndDispose(Stream outStream, string bufferPath = null, string directory = null)
+        async UniTask<bool> SaveAndDispose(Stream outStream, string bufferPath = null, string directory = null)
         {
 
 #if DEBUG
@@ -691,7 +692,7 @@ namespace GLTFast.Export
             return true;
         }
 
-        async Task WriteJsonToStream(Stream outStream)
+        async UniTask WriteJsonToStream(Stream outStream)
         {
             var writer = new StreamWriter(outStream);
             m_Gltf.GltfSerialize(writer);
@@ -740,7 +741,7 @@ namespace GLTFast.Export
 #endif
         }
 
-        async Task<bool> Bake(string bufferPath, string directory)
+        async UniTask<bool> Bake(string bufferPath, string directory)
         {
             if (m_Meshes != null)
             {
@@ -897,7 +898,7 @@ namespace GLTFast.Export
 
 #if GLTFAST_MESH_DATA
 
-        async Task BakeMeshes() {
+        async UniTask BakeMeshes() {
             Profiler.BeginSample("AcquireReadOnlyMeshData");
             var meshDataArray = UnityEngine.Mesh.AcquireReadOnlyMeshData(m_UnityMeshes);
             Profiler.EndSample();
@@ -908,7 +909,7 @@ namespace GLTFast.Export
             meshDataArray.Dispose();
         }
 
-        async Task BakeMesh(int meshId, UnityEngine.Mesh.MeshData meshData) {
+        async UniTask BakeMesh(int meshId, UnityEngine.Mesh.MeshData meshData) {
 
             Profiler.BeginSample("BakeMesh 1");
 
@@ -1074,7 +1075,7 @@ namespace GLTFast.Export
                     }.Schedule(quadCount, k_DefaultInnerLoopBatchCount);
                     Profiler.EndSample();
                     while (!job.IsCompleted) {
-                        await Task.Yield();
+                        await UniTask.Yield();
                     }
                     Profiler.BeginSample("IndexJobUInt16QuadsPostWork");
                     job.Complete(); // TODO: Wait until thread is finished
@@ -1094,7 +1095,7 @@ namespace GLTFast.Export
                     }.Schedule(triangleCount, k_DefaultInnerLoopBatchCount);
                     Profiler.EndSample();
                     while (!job.IsCompleted) {
-                        await Task.Yield();
+                        await UniTask.Yield();
                     }
                     Profiler.BeginSample("IndexJobUInt16TrisPostWork");
                     job.Complete(); // TODO: Wait until thread is finished
@@ -1117,7 +1118,7 @@ namespace GLTFast.Export
                     }.Schedule(quadCount, k_DefaultInnerLoopBatchCount);
                     Profiler.EndSample();
                     while (!job.IsCompleted) {
-                        await Task.Yield();
+                        await UniTask.Yield();
                     }
                     Profiler.BeginSample("IndexJobUInt32QuadsPostWork");
                     job.Complete(); // TODO: Wait until thread is finished
@@ -1137,7 +1138,7 @@ namespace GLTFast.Export
                     }.Schedule(triangleCount, k_DefaultInnerLoopBatchCount);
                     Profiler.EndSample();
                     while (!job.IsCompleted) {
-                        await Task.Yield();
+                        await UniTask.Yield();
                     }
                     Profiler.BeginSample("IndexJobUInt32TrisPostWork");
                     job.Complete(); // TODO: Wait until thread is finished
@@ -1229,7 +1230,7 @@ namespace GLTFast.Export
         }
 #else
 
-        async Task BakeMeshesLegacy()
+        async UniTask BakeMeshesLegacy()
         {
             for (var meshId = 0; meshId < m_Meshes.Count; meshId++)
             {
@@ -1634,7 +1635,7 @@ namespace GLTFast.Export
         }
 #endif // #if GLTFAST_MESH_DATA
 
-        async Task<bool> BakeImages(string directory)
+        async UniTask<bool> BakeImages(string directory)
         {
             if (m_ImageExports != null)
             {
@@ -1742,7 +1743,7 @@ namespace GLTFast.Export
 
 #if GLTFAST_MESH_DATA
 
-        static async Task ConvertPositionAttribute(
+        static async UniTask ConvertPositionAttribute(
             AttributeData attrData,
             uint byteStride,
             int vertexCount,
@@ -1752,7 +1753,7 @@ namespace GLTFast.Export
         {
             var job = CreateConvertPositionAttributeJob(attrData, byteStride, vertexCount, inputStream, outputStream);
             while (!job.IsCompleted) {
-                await Task.Yield();
+                await UniTask.Yield();
             }
             job.Complete(); // TODO: Wait until thread is finished
         }
@@ -1773,7 +1774,7 @@ namespace GLTFast.Export
             return job;
         }
 
-        static async Task ConvertTangentAttribute(
+        static async UniTask ConvertTangentAttribute(
             AttributeData attrData,
             uint byteStride,
             int vertexCount,
@@ -1783,7 +1784,7 @@ namespace GLTFast.Export
         {
             var job = CreateConvertTangentAttributeJob(attrData, byteStride, vertexCount, inputStream, outputStream);
             while (!job.IsCompleted) {
-                await Task.Yield();
+                await UniTask.Yield();
             }
             job.Complete(); // TODO: Wait until thread is finished
         }
@@ -1803,7 +1804,7 @@ namespace GLTFast.Export
             return job;
         }
 
-        static async Task ConvertTexCoordAttribute(
+        static async UniTask ConvertTexCoordAttribute(
             AttributeData attrData,
             uint byteStride,
             int vertexCount,
@@ -1812,7 +1813,7 @@ namespace GLTFast.Export
         ) {
             var job = CreateConvertTexCoordAttributeJob(attrData, byteStride, vertexCount, inputStream, outputStream);
             while (!job.IsCompleted) {
-                await Task.Yield();
+                await UniTask.Yield();
             }
             job.Complete(); // TODO: Wait until thread is finished
         }
